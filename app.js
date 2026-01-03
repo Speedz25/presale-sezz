@@ -5,7 +5,7 @@ const PRESALE_ADDRESS = "0x1D507F16c5983Ae8e2146731F32a6e23A9B5c7fE";
 const USDT_ADDRESS    = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
 
 // Polygon RPC (READ ONLY)
-const RPC_URL = "https://polygon-rpc.com";
+const RPC_URL = "https://rpc.ankr.com/polygon";
 
 // ======================================================
 // ABI
@@ -13,7 +13,7 @@ const RPC_URL = "https://polygon-rpc.com";
 const PRESALE_ABI = [
     "function stage() view returns (uint8)",
     "function currentPrice() view returns (uint256)",
-    "function buy(uint256 usdtAmount)",
+    "function buy(uint256 usdtAmount)"
 ];
 
 const USDT_ABI = [
@@ -48,20 +48,28 @@ presaleRead = new ethers.Contract(
 // ======================================================
 async function loadPresaleInfo() {
     try {
+        console.log("Loading presale info...");
+
         const stage = await presaleRead.stage();
         const price = await presaleRead.currentPrice();
+
+        console.log("Stage:", stage.toString());
+        console.log("Price:", price.toString());
 
         document.getElementById("stage").innerText =
             "Stage: " + stage;
 
         document.getElementById("price").innerText =
             "Price: " + (price / 1e6) + " USDT / token";
+
     } catch (err) {
-        console.error(err);
+        console.error("Presale load error:", err);
+
         document.getElementById("stage").innerText =
-            "Stage: unavailable";
+            "Stage: ERROR";
+
         document.getElementById("price").innerText =
-            "Price: unavailable";
+            "Price: ERROR";
     }
 }
 
@@ -135,7 +143,7 @@ async function buyToken() {
         loadPresaleInfo();
 
     } catch (err) {
-        console.error(err);
+        console.error("Buy error:", err);
         alert("Transaction failed");
     }
 }
