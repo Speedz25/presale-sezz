@@ -1,101 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>SEZZ Presale</title>
-
-    <!-- Ethers.js v5 -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <style>
         body {
-            margin: 0;
-            padding: 0;
             font-family: Arial, sans-serif;
             background: #0b0b0b;
             color: #ffffff;
+            padding: 30px;
+            max-width: 480px;
+            margin: auto;
         }
 
-        .container {
-            max-width: 420px;
-            margin: 60px auto;
-            padding: 25px;
-            background: #141414;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.6);
-        }
-
-        h1 {
+        h2 {
             text-align: center;
-            margin-bottom: 20px;
         }
 
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 12px;
-            font-size: 16px;
-            background: #1e90ff;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+        .box {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
         }
 
-        button:hover {
-            background: #187bcd;
+        .row {
+            margin-bottom: 10px;
         }
 
         input {
             width: 100%;
             padding: 10px;
-            margin-top: 8px;
-            font-size: 16px;
             border-radius: 6px;
             border: none;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .connect {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .buy {
+            background: #16a34a;
+            color: #fff;
         }
 
         .info {
-            margin-top: 10px;
             font-size: 14px;
-            word-break: break-all;
-        }
-
-        hr {
-            margin: 20px 0;
-            border: 1px solid #222;
+            opacity: 0.85;
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h1>SEZZ PRESALE</h1>
+    <h2>SEZZ Token Presale</h2>
 
-    <button onclick="connectWallet()">Connect Wallet</button>
+    <div class="box">
+        <div class="row info" id="stage">Stage: -</div>
+        <div class="row info" id="price">Price: -</div>
+        <div class="row info" id="wallet">Wallet: Not connected</div>
+    </div>
 
-    <div class="info" id="wallet">Wallet: -</div>
-    <div class="info" id="stage">Stage: -</div>
-    <div class="info" id="price">Price: -</div>
+    <div class="box">
+        <label>USDT Amount</label>
+        <input
+            id="usdtAmount"
+            type="number"
+            min="1"
+            placeholder="Enter USDT amount"
+        />
 
-    <hr>
+        <button class="connect" onclick="connectWallet()">
+            Connect Wallet
+        </button>
 
-    <label>Buy with USDT (Polygon)</label>
-    <input
-        type="number"
-        id="usdtAmount"
-        placeholder="Minimum 1 USDT"
-        min="1"
-        step="0.1"
-    >
+        <button class="buy" onclick="buyToken()">
+            Buy Token
+        </button>
+    </div>
 
-    <button onclick="buy()">Buy Token</button>
+    <!-- IMPORTANT: ethers.js must be loaded FIRST -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+    <script src="app.js"></script>
 
-    <div class="info" id="status"></div>
-</div>
-
-<script src="app.js"></script>
 </body>
 </html>
