@@ -2,7 +2,7 @@ console.log("Initializing SEZZ Presale Frontend...");
 
 // ======================= CONFIG =======================
 const RPC_URL = "https://polygon-rpc.com/"; // Ganti jika pakai RPC lain
-const PRESALE_CONTRACT = "0xYourPresaleContractAddress"; // Ganti dengan contract SEZZ
+const PRESALE_CONTRACT = "0x1D507F16c5983Ae8e2146731F32a6e23A9B5c7fE"; // Ganti dengan contract SEZZ
 const ABI = [
     "function stage() view returns (uint8)",
     "function currentPrice() view returns (uint256)",
