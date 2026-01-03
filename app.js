@@ -1,34 +1,76 @@
-// ================================
+// ======================================================
 // CONFIG
-// ================================
+// ======================================================
 const PRESALE_ADDRESS = "0x1D507F16c5983Ae8e2146731F32a6e23A9B5c7fE";
 const USDT_ADDRESS    = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
 
-// ABI MINIMAL PRESALE
+// Polygon RPC (READ ONLY)
+const RPC_URL = "https://polygon-rpc.com";
+
+// ======================================================
+// ABI
+// ======================================================
 const PRESALE_ABI = [
-    "function buy(uint256 usdtAmount) external",
     "function stage() view returns (uint8)",
-    "function currentPrice() view returns (uint256)"
+    "function currentPrice() view returns (uint256)",
+    "function buy(uint256 usdtAmount)",
 ];
 
-// ABI MINIMAL USDT
 const USDT_ABI = [
-    "function approve(address spender, uint256 amount) external returns (bool)",
-    "function allowance(address owner, address spender) view returns (uint256)"
+    "function approve(address spender, uint256 amount) returns (bool)",
+    "function allowance(address owner, address spender) view returns (uint256)",
+    "function decimals() view returns (uint8)"
 ];
 
+// ======================================================
+// GLOBAL VARIABLES
+// ======================================================
 let provider;
 let signer;
-let presale;
+let presale;        // write (wallet)
+let presaleRead;    // read-only (no wallet)
 let usdt;
 let userAddress;
 
-// ================================
-// CONNECT WALLET
-// ================================
+// ======================================================
+// READ-ONLY PROVIDER (NO WALLET REQUIRED)
+// ======================================================
+const READ_PROVIDER = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+presaleRead = new ethers.Contract(
+    PRESALE_ADDRESS,
+    PRESALE_ABI,
+    READ_PROVIDER
+);
+
+// ======================================================
+// LOAD STAGE & PRICE (NO WALLET)
+// ======================================================
+async function loadPresaleInfo() {
+    try {
+        const stage = await presaleRead.stage();
+        const price = await presaleRead.currentPrice();
+
+        document.getElementById("stage").innerText =
+            "Stage: " + stage;
+
+        document.getElementById("price").innerText =
+            "Price: " + (price / 1e6) + " USDT / token";
+    } catch (err) {
+        console.error(err);
+        document.getElementById("stage").innerText =
+            "Stage: unavailable";
+        document.getElementById("price").innerText =
+            "Price: unavailable";
+    }
+}
+
+// ======================================================
+// CONNECT WALLET (METAMASK)
+// ======================================================
 async function connectWallet() {
     if (!window.ethereum) {
-        alert("MetaMask tidak ditemukan");
+        alert("MetaMask not found");
         return;
     }
 
@@ -38,75 +80,69 @@ async function connectWallet() {
 
     userAddress = await signer.getAddress();
 
-    presale = new ethers.Contract(PRESALE_ADDRESS, PRESALE_ABI, signer);
-    usdt    = new ethers.Contract(USDT_ADDRESS, USDT_ABI, signer);
+    presale = new ethers.Contract(
+        PRESALE_ADDRESS,
+        PRESALE_ABI,
+        signer
+    );
+
+    usdt = new ethers.Contract(
+        USDT_ADDRESS,
+        USDT_ABI,
+        signer
+    );
 
     document.getElementById("wallet").innerText =
         "Wallet: " + userAddress;
-
-    await loadPresaleInfo();
 }
 
-// ================================
-// LOAD PRESALE INFO
-// ================================
-async function loadPresaleInfo() {
-    const stage = await presale.stage();
-    const price = await presale.currentPrice();
+// ======================================================
+// BUY FUNCTION (REQUIRES WALLET)
+// ======================================================
+async function buyToken() {
+    if (!signer) {
+        alert("Please connect wallet first");
+        return;
+    }
 
-    document.getElementById("stage").innerText =
-        "Stage: " + stage;
+    const input = document.getElementById("usdtAmount").value;
+    if (!input || Number(input) <= 0) {
+        alert("Enter USDT amount");
+        return;
+    }
 
-    document.getElementById("price").innerText =
-        "Price: " + (price / 1e6) + " USDT / token";
-}
-
-// ================================
-// BUY TOKEN
-// ================================
-async function buy() {
     try {
-        const usdtInput = document.getElementById("usdtAmount").value;
-        if (!usdtInput || usdtInput <= 0) {
-            alert("Masukkan jumlah USDT");
-            return;
-        }
-
-        const usdtAmount = ethers.utils.parseUnits(usdtInput, 6);
-
-        document.getElementById("status").innerText =
-            "Checking allowance...";
+        const decimals = await usdt.decimals();
+        const amountUSDT = ethers.utils.parseUnits(input, decimals);
 
         const allowance = await usdt.allowance(
             userAddress,
             PRESALE_ADDRESS
         );
 
-        if (allowance.lt(usdtAmount)) {
-            document.getElementById("status").innerText =
-                "Approve USDT...";
-
-            const approveTx = await usdt.approve(
+        if (allowance.lt(amountUSDT)) {
+            const txApprove = await usdt.approve(
                 PRESALE_ADDRESS,
-                usdtAmount
+                amountUSDT
             );
-            await approveTx.wait();
+            await txApprove.wait();
         }
 
-        document.getElementById("status").innerText =
-            "Buying token...";
+        const txBuy = await presale.buy(amountUSDT);
+        await txBuy.wait();
 
-        const buyTx = await presale.buy(usdtAmount);
-        await buyTx.wait();
-
-        document.getElementById("status").innerText =
-            "SUCCESS: Token berhasil dibeli";
-
-        await loadPresaleInfo();
+        alert("Buy success");
+        loadPresaleInfo();
 
     } catch (err) {
         console.error(err);
-        document.getElementById("status").innerText =
-            "ERROR: Transaksi dibatalkan atau gagal";
+        alert("Transaction failed");
     }
 }
+
+// ======================================================
+// AUTO LOAD DATA ON PAGE OPEN
+// ======================================================
+window.addEventListener("load", () => {
+    loadPresaleInfo();
+});
