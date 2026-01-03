@@ -1,115 +1,105 @@
-// ======================================================
-// CONFIG
-// ======================================================
-const PRESALE_ADDRESS = "0x1D507F16c5983Ae8e2146731F32a6e23A9B5c7fE";
-const USDT_ADDRESS    = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-const RPC_URL         = "https://rpc.ankr.com/polygon";
+console.log("Initializing SEZZ Presale Frontend...");
 
-// ======================================================
-// ABI
-// ======================================================
-const PRESALE_ABI = [
+// ======================= CONFIG =======================
+const RPC_URL = "https://polygon-rpc.com/"; // Ganti jika pakai RPC lain
+const PRESALE_CONTRACT = "0xYourPresaleContractAddress"; // Ganti dengan contract SEZZ
+const ABI = [
     "function stage() view returns (uint8)",
     "function currentPrice() view returns (uint256)",
-    "function buy(uint256 usdtAmount)"
+    "function buy(uint256 usdtAmount) external",
+    "function remainingToken(uint8) view returns (uint256)"
 ];
 
-const USDT_ABI = [
-    "function approve(address spender, uint256 amount) returns (bool)",
-    "function allowance(address owner, address spender) view returns (uint256)",
-    "function decimals() view returns (uint8)"
-];
+let provider;
+let signer;
+let contract;
 
-// ======================================================
-// GLOBAL VARIABLES
-// ======================================================
-let provider, signer, presale, presaleRead, usdt, userAddress;
+// ======================= DOM ELEMENTS =======================
+const stageEl = document.getElementById("stage");
+const priceEl = document.getElementById("price");
+const errorEl = document.getElementById("error");
+const buyBtn = document.getElementById("buyBtn");
+const usdtInput = document.getElementById("usdtAmount");
 
-// ======================================================
-// READ-ONLY PROVIDER
-// ======================================================
-const READ_PROVIDER = new ethers.providers.JsonRpcProvider(RPC_URL);
-presaleRead = new ethers.Contract(PRESALE_ADDRESS, PRESALE_ABI, READ_PROVIDER);
+// ======================= INIT =======================
+async function init() {
+    console.log("Connecting to RPC...");
 
-// ======================================================
-// LOAD PRESALE INFO WITH DEBUG
-// ======================================================
-async function loadPresaleInfo() {
     try {
-        const stage = await presaleRead.stage();
-        const price = await presaleRead.currentPrice();
+        provider = new ethers.JsonRpcProvider(RPC_URL);
+        contract = new ethers.Contract(PRESALE_CONTRACT, ABI, provider);
+        console.log("Contract loaded:", contract);
 
-        document.getElementById("stage").innerText = stage;
-        document.getElementById("price").innerText = (price / 1e6) + " USDT / SEZZ";
-        document.getElementById("errorMsg").innerText = "";
+        await updateStageAndPrice();
 
-        console.log("Stage:", stage.toString());
-        console.log("Price:", price.toString());
+        // Auto refresh every 10s
+        setInterval(updateStageAndPrice, 10000);
+
     } catch (err) {
-        console.error("Presale load error:", err);
-        document.getElementById("stage").innerText = "-";
-        document.getElementById("price").innerText = "-";
-        document.getElementById("errorMsg").innerText = "Error loading presale: see console";
+        console.error("Failed to load contract:", err);
+        errorEl.textContent = "Error loading contract / RPC!";
     }
 }
 
-// ======================================================
-// CONNECT WALLET
-// ======================================================
-async function connectWallet() {
+// ======================= UPDATE STAGE & PRICE =======================
+async function updateStageAndPrice() {
+    try {
+        const stage = await contract.stage();
+        const priceRaw = await contract.currentPrice();
+        const price = Number(priceRaw);
+
+        console.log("Current stage:", stage, "Price:", price);
+        stageEl.textContent = stage;
+        priceEl.textContent = price;
+        errorEl.textContent = "";
+    } catch (err) {
+        console.error("Error fetching stage/price:", err);
+        errorEl.textContent = "Failed to fetch stage or price!";
+        stageEl.textContent = "-";
+        priceEl.textContent = "-";
+    }
+}
+
+// ======================= BUY SEZZ =======================
+async function buySezz() {
+    const amount = Number(usdtInput.value);
+    if (!amount || amount <= 0) {
+        alert("Enter valid USDT amount");
+        return;
+    }
+
     if (!window.ethereum) {
-        alert("MetaMask not found");
-        return;
-    }
-
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-
-    userAddress = await signer.getAddress();
-    document.getElementById("wallet").innerText = "Wallet: " + userAddress;
-
-    presale = new ethers.Contract(PRESALE_ADDRESS, PRESALE_ABI, signer);
-    usdt = new ethers.Contract(USDT_ADDRESS, USDT_ABI, signer);
-}
-
-// ======================================================
-// BUY FUNCTION
-// ======================================================
-async function buyToken() {
-    if (!signer) {
-        alert("Please connect wallet first");
-        return;
-    }
-
-    const input = document.getElementById("usdtAmount").value;
-    if (!input || Number(input) <= 0) {
-        alert("Enter USDT amount");
+        alert("Wallet not detected! Install MetaMask.");
         return;
     }
 
     try {
-        const decimals = await usdt.decimals();
-        const amountUSDT = ethers.utils.parseUnits(input, decimals);
+        provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        contract = new ethers.Contract(PRESALE_CONTRACT, ABI, signer);
 
-        const allowance = await usdt.allowance(userAddress, PRESALE_ADDRESS);
-        if (allowance.lt(amountUSDT)) {
-            const txApprove = await usdt.approve(PRESALE_ADDRESS, amountUSDT);
-            await txApprove.wait();
-        }
+        console.log("Wallet connected:", await signer.getAddress());
+        console.log("Attempting to buy SEZZ with", amount, "USDT");
 
-        const txBuy = await presale.buy(amountUSDT);
-        await txBuy.wait();
+        const tx = await contract.buy(ethers.parseUnits(amount.toString(), 6));
+        console.log("Transaction sent:", tx.hash);
 
-        alert("Buy success!");
-        loadPresaleInfo();
+        await tx.wait();
+        console.log("Transaction confirmed!");
+        alert("Purchase successful!");
+
+        // Refresh stage & price after buy
+        updateStageAndPrice();
+
     } catch (err) {
-        console.error("Buy error:", err);
-        alert("Transaction failed: see console");
+        console.error("Buy failed:", err);
+        alert("Transaction failed! See console.");
     }
 }
 
-// ======================================================
-// AUTO LOAD ON PAGE
-// ======================================================
-window.addEventListener("load", loadPresaleInfo);
+// ======================= EVENT LISTENERS =======================
+buyBtn.addEventListener("click", buySezz);
+
+// ======================= START =======================
+init();
