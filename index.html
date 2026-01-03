@@ -1,70 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>SEZZ Presale Debug</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEZZ Presale</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <style>
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #0d0d0d;
-            color: #ffffff;
-            padding: 30px;
-            max-width: 480px;
-            margin: auto;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+            color: #fff;
+            margin: 0;
+            padding: 0;
         }
-
-        h1 { text-align: center; margin-bottom: 10px; }
-        .subtitle { text-align: center; font-size: 14px; opacity: 0.7; margin-bottom: 20px; }
-        .card { background: #1a1a1a; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        .row { margin-bottom: 10px; }
-        .label { opacity: 0.7; }
-        .value { font-weight: bold; }
-        input { width: 100%; padding: 12px; border-radius: 8px; border: none; margin-top: 8px; font-size: 15px; }
-        button { width: 100%; padding: 14px; margin-top: 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .connect { background: #2563eb; color: #fff; }
-        .buy { background: #16a34a; color: #fff; }
-        .footer { text-align: center; margin-top: 30px; font-size: 12px; opacity: 0.5; }
-        .error { color: #f87171; font-weight: bold; }
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background-color: rgba(0,0,0,0.5);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: #ffcc00;
+        }
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2rem;
+        }
+        .card {
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid #ffcc00;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            width: 300px;
+            text-align: center;
+        }
+        .stage, .price {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+        .error {
+            color: #ff4444;
+            margin: 1rem 0;
+        }
+        input {
+            padding: 0.5rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+        button {
+            background-color: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 0.8rem 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
     </style>
 </head>
-
 <body>
+    <header>
+        <h1>SEZZ Presale</h1>
+    </header>
 
-<h1>SEZZ PRESALE (DEBUG)</h1>
-<div class="subtitle">Official SEZZ Token Presale • Polygon Network</div>
+    <main>
+        <div class="card">
+            <div class="stage">Stage: <span id="stage">-</span></div>
+            <div class="price">Price: <span id="price">-</span> USDT</div>
+            <div class="error" id="error"></div>
+        </div>
 
-<div class="card">
-    <div class="row">
-        <span class="label">Presale Stage:</span>
-        <span class="value" id="stage">Loading...</span>
-    </div>
+        <div class="card">
+            <input type="number" id="usdtAmount" placeholder="Enter USDT amount">
+            <button id="buyBtn">Buy SEZZ</button>
+        </div>
+    </main>
 
-    <div class="row">
-        <span class="label">SEZZ Price:</span>
-        <span class="value" id="price">Loading...</span>
-    </div>
+    <footer>
+        &copy; 2026 SEZZ Presale
+    </footer>
 
-    <div class="row">
-        <span class="label">Wallet Status:</span>
-        <span class="value" id="wallet">Not connected</span>
-    </div>
-
-    <div class="row error" id="errorMsg"></div>
-</div>
-
-<div class="card">
-    <label class="label">USDT Amount (Buy SEZZ)</label>
-    <input id="usdtAmount" type="number" min="1" placeholder="Enter USDT amount" />
-    <button class="connect" onclick="connectWallet()">Connect Wallet</button>
-    <button class="buy" onclick="buyToken()">Buy SEZZ</button>
-</div>
-
-<div class="footer">© 2026 SEZZ Token • All rights reserved</div>
-
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-<script src="app.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.2/dist/ethers.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
