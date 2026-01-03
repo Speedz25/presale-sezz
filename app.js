@@ -23,21 +23,16 @@ const USDT_ABI = [
 // ======================================================
 // GLOBAL VARIABLES
 // ======================================================
-let provider;
-let signer;
-let presale;        // write
-let presaleRead;    // read-only
-let usdt;
-let userAddress;
+let provider, signer, presale, presaleRead, usdt, userAddress;
 
 // ======================================================
-// READ-ONLY PROVIDER (STAGE & PRICE WITHOUT WALLET)
+// READ-ONLY PROVIDER
 // ======================================================
 const READ_PROVIDER = new ethers.providers.JsonRpcProvider(RPC_URL);
 presaleRead = new ethers.Contract(PRESALE_ADDRESS, PRESALE_ABI, READ_PROVIDER);
 
 // ======================================================
-// LOAD STAGE & PRICE
+// LOAD PRESALE INFO WITH DEBUG
 // ======================================================
 async function loadPresaleInfo() {
     try {
@@ -46,11 +41,15 @@ async function loadPresaleInfo() {
 
         document.getElementById("stage").innerText = stage;
         document.getElementById("price").innerText = (price / 1e6) + " USDT / SEZZ";
+        document.getElementById("errorMsg").innerText = "";
 
+        console.log("Stage:", stage.toString());
+        console.log("Price:", price.toString());
     } catch (err) {
         console.error("Presale load error:", err);
-        document.getElementById("stage").innerText = "Error";
-        document.getElementById("price").innerText = "Error";
+        document.getElementById("stage").innerText = "-";
+        document.getElementById("price").innerText = "-";
+        document.getElementById("errorMsg").innerText = "Error loading presale: see console";
     }
 }
 
@@ -68,11 +67,10 @@ async function connectWallet() {
     signer = provider.getSigner();
 
     userAddress = await signer.getAddress();
+    document.getElementById("wallet").innerText = "Wallet: " + userAddress;
 
     presale = new ethers.Contract(PRESALE_ADDRESS, PRESALE_ABI, signer);
     usdt = new ethers.Contract(USDT_ADDRESS, USDT_ABI, signer);
-
-    document.getElementById("wallet").innerText = "Wallet: " + userAddress;
 }
 
 // ======================================================
@@ -105,14 +103,13 @@ async function buyToken() {
 
         alert("Buy success!");
         loadPresaleInfo();
-
     } catch (err) {
         console.error("Buy error:", err);
-        alert("Transaction failed");
+        alert("Transaction failed: see console");
     }
 }
 
 // ======================================================
-// AUTO LOAD DATA
+// AUTO LOAD ON PAGE
 // ======================================================
 window.addEventListener("load", loadPresaleInfo);
