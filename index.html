@@ -7,76 +7,116 @@
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #0b0b0b;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(180deg, #050505, #0d0d0d);
             color: #ffffff;
             padding: 30px;
             max-width: 480px;
             margin: auto;
         }
 
-        h2 {
+        h1 {
             text-align: center;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
         }
 
-        .box {
-            background: #1a1a1a;
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.75;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: #141414;
+            border: 1px solid #222;
             padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
         }
 
         .row {
             margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .label {
+            opacity: 0.7;
+        }
+
+        .value {
+            font-weight: bold;
         }
 
         input {
             width: 100%;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
             border: none;
-            margin-top: 5px;
+            margin-top: 8px;
+            font-size: 15px;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            margin-top: 10px;
+            padding: 14px;
+            margin-top: 12px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
         }
 
         .connect {
             background: #2563eb;
-            color: #fff;
+            color: #ffffff;
         }
 
         .buy {
             background: #16a34a;
-            color: #fff;
+            color: #ffffff;
         }
 
-        .info {
-            font-size: 14px;
-            opacity: 0.85;
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            opacity: 0.5;
         }
     </style>
 </head>
 
 <body>
 
-    <h2>SEZZ Token Presale</h2>
-
-    <div class="box">
-        <div class="row info" id="stage">Stage: -</div>
-        <div class="row info" id="price">Price: -</div>
-        <div class="row info" id="wallet">Wallet: Not connected</div>
+    <h1>SEZZ PRESALE</h1>
+    <div class="subtitle">
+        Official SEZZ Token Presale • Polygon Network
     </div>
 
-    <div class="box">
-        <label>USDT Amount</label>
+    <div class="card">
+        <div class="row">
+            <span class="label">Presale Stage:</span>
+            <span class="value" id="stage">-</span>
+        </div>
+
+        <div class="row">
+            <span class="label">SEZZ Price:</span>
+            <span class="value" id="price">-</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Wallet Status:</span>
+            <span class="value" id="wallet">Not connected</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <label class="label">
+            USDT Amount (Buy SEZZ)
+        </label>
+
         <input
             id="usdtAmount"
             type="number"
@@ -89,8 +129,12 @@
         </button>
 
         <button class="buy" onclick="buyToken()">
-            Buy Token
+            Buy SEZZ
         </button>
+    </div>
+
+    <div class="footer">
+        © 2026 SEZZ Token • All rights reserved
     </div>
 
     <!-- IMPORTANT: ethers.js must be loaded FIRST -->
