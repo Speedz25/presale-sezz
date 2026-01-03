@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SEZZ Presale</title>
+
+    <!-- Ethers.js v5 -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #0b0b0b;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 60px auto;
+            padding: 25px;
+            background: #141414;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 16px;
+            background: #1e90ff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #187bcd;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: none;
+        }
+
+        .info {
+            margin-top: 10px;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: 1px solid #222;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SEZZ PRESALE</h1>
+
+    <button onclick="connectWallet()">Connect Wallet</button>
+
+    <div class="info" id="wallet">Wallet: -</div>
+    <div class="info" id="stage">Stage: -</div>
+    <div class="info" id="price">Price: -</div>
+
+    <hr>
+
+    <label>Buy with USDT (Polygon)</label>
+    <input
+        type="number"
+        id="usdtAmount"
+        placeholder="Minimum 1 USDT"
+        min="1"
+        step="0.1"
+    >
+
+    <button onclick="buy()">Buy Token</button>
+
+    <div class="info" id="status"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
